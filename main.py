@@ -17,15 +17,28 @@ def nonempty_city(value: str) -> str:
 def currency_code(value: str) -> str:
     value = value.strip().upper()
     if not re.fullmatch(r"[A-Z]{3}", value):
-        raise argparse.ArgumentTypeError("код валюты должен состоять из трёх латинских букв")
+        raise argparse.ArgumentTypeError(
+            "код валюты должен состоять из трёх латинских букв"
+        )
     return value
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Погода в городе и курс валюты к рублю")
-    parser.add_argument("--city", required=True, type=nonempty_city, help="Название города")
-    parser.add_argument("--currency", default="USD", type=currency_code, help="Трёхбуквенный код валюты (по умолчанию USD)")
-    parser.add_argument("--json", action="store_true", help="Вывести сводку в формате JSON")
+    parser = argparse.ArgumentParser(
+        description="Погода в городе и курс валюты к рублю"
+    )
+    parser.add_argument(
+        "--city", required=True, type=nonempty_city, help="Название города"
+    )
+    parser.add_argument(
+        "--currency",
+        default="USD",
+        type=currency_code,
+        help="Трёхбуквенный код валюты (по умолчанию USD)",
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="Вывести сводку в формате JSON"
+    )
     args = parser.parse_args(argv)
 
     try:

@@ -30,10 +30,15 @@ def get_json(url: str, *, params=None, not_found_statuses=()):
     for attempt in range(RETRIES + 1):
         try:
             response = requests.get(url, params=params, timeout=TIMEOUT)
-        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+        except (
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError,
+        ) as exc:
             if attempt == RETRIES:
-                raise ServiceUnavailable(f"нет связи с {url} после {RETRIES + 1} попыток") from exc
-            time.sleep(0.5 * (2 ** attempt))
+                raise ServiceUnavailable(
+                    f"нет связи с {url} после {RETRIES + 1} попыток"
+                ) from exc
+            time.sleep(0.5 * (2**attempt))
             continue
         except requests.exceptions.RequestException as exc:
             raise ServiceUnavailable(f"не удалось запросить {url}") from exc
@@ -41,8 +46,10 @@ def get_json(url: str, *, params=None, not_found_statuses=()):
         status = response.status_code
         if status == 429 or status in RETRYABLE_STATUSES:
             if attempt == RETRIES:
-                raise ServiceUnavailable(f"{url}: HTTP {status} после {RETRIES + 1} попыток")
-            delay = 0.5 * (2 ** attempt)
+                raise ServiceUnavailable(
+                    f"{url}: HTTP {status} после {RETRIES + 1} попыток"
+                )
+            delay = 0.5 * (2**attempt)
             if status == 429:
                 raw = response.headers.get("Retry-After", "")
                 try:
@@ -65,6 +72,8 @@ def get_json(url: str, *, params=None, not_found_statuses=()):
         try:
             return status, response.json()
         except (ValueError, requests.exceptions.RequestException) as exc:
-            raise ServiceUnavailable(f"{url}: ответ не является корректным JSON") from exc
+            raise ServiceUnavailable(
+                f"{url}: ответ не является корректным JSON"
+            ) from exc
 
     raise AssertionError("retry loop should always return or raise")
